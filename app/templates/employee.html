@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> {{ title }} </title>
+    {% include 'script.html' %}
+</head>
+<body>
+<header class="d-flex justify-content-center py-3">
+    <ul class="nav nav-pills">
+        <li class="nav-item"><a href="/" class="nav-link" aria-current="page">Calendrier</a></li>
+        <li class="nav-item"><a href="/employees" class="nav-link active">Employées</a></li>
+        <li class="nav-item"><a href="/infos" class="nav-link ">Pharmacie</a></li>
+        <li class="nav-item"><a href="/logout" class="nav-link">Déconnexion</a></li>
+    </ul>
+</header>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1>Jour de travail</h1>
+            {% if workDays %}
+            <ul>
+                {% for day in workDays %}
+                <li>
+                    <p>Information : </p>
+                    <p>Date de début : {{day['start_date']}}</p>
+                    <p>Date de fin : {{day['end_date']}}</p>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>Aucun employées dans cette société</p>
+            {% endif %}
+        </div>
+        <div class="col">
+            <ul>
+                {% for info in employee %}
+                    <form action="{{'/employee/'~info['idEmployee']~'/modify_infos'}}" method="post">
+                        <li><input id={{info['idEmployee']~"name"}} name="name" class="form-control"
+                                   value="{{info['employee_name']}}"></li>
+                        <li><input id={{info['idEmployee']~"end_date"}} name="surname" class="form-control"
+                                  value="{{info['employee_surname']}}"></li>
+                        <li><input id={{info['idEmployee']}} type="color" name="color" class="form-control" value="{{info['color']}}"></li>
+                        <button type="submit" name="button" class="add" numId={{employee['idEmployee']}}
+                                prenom={{employee['employee_name']}}
+                                nom={{employee['employee_surname']}} bgcolor={{employee['color']}} type="button">
+                            Modifier
+                        </button>
+                    </form>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title> {{ title }} </title>
+    {% include 'script.html' %}
+</head>
+<body>
+<div>
+    <h1> Connexion </h1>
+    <form action="/account/createAccount/create" method="POST">
+        <input placeholder="Name" autocomplete="off" type="text" name="name" required>
+        <input placeholder="Prenom" autocomplete="off" type="text" name="surname" required>
+        <input placeholder="Company Nom" autocomplete="off" type="text" name="company_name" required>
+        <input placeholder="Company Adresse" autocomplete="off" type="text" name="company_address" required>
+        <input type="submit" name="Register">
+    </form>
+    <button><a href="/login">Se connecter</a></button>
+</div>
+
+</body>
+</html>

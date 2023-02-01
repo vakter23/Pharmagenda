@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title> {{ title }} </title>
+    {% include 'script.html' %}
+</head>
+<body>
+<header class="d-flex justify-content-center py-3">
+    <ul class="nav nav-pills">
+        <li class="nav-item"><a href="/" class="nav-link" aria-current="page">Calendrier</a></li>
+        <li class="nav-item"><a href="/employees" class="nav-link">Employées</a></li>
+        <li class="nav-item"><a href="/infos" class="nav-link active">Pharmacie</a></li>
+        <li class="nav-item"><a href="/logout" class="nav-link">Déconnexion</a></li>
+    </ul>
+</header>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1>Utilisateur</h1>
+            <ul>
+                {% for info in user %}
+                <form action="{{'/infos/modify_user/'~info['idUser']}}" method="post">
+                    <li>Prenom :<input id={{info['idUser']~"name"}} name="name" class="form-control"
+                               value="{{info['name']}}"></li>
+                    <li>Nom :<input id={{info['idUser']~"end_date"}} name="surname" class="form-control"
+                               value="{{info['surname']}}"></li>
+                    <button type="submit" name="button" class="add" numId={{info['idUser']}}
+                            prenom={{info['idUser']}}
+                            nom={{info['idUser']}} bgcolor={{info['color']}} type="button">
+                        Modifier
+                    </button>
+                </form>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="col">
+            <h1>Entreprise</h1>
+            <ul>
+                {% for info in company %}
+                <form action="{{'/infos/modify_company/'~info['idCompany']}}" method="post">
+                    <li>Nom : <input name="name" class="form-control"
+                               value="{{info['company_name']}}"></li>
+                    <li>Adresse : <input name="address" type="text" class="form-control" value="{{info['company_address']}}" ></li>
+                    <button type="submit" name="button" numId={{info['idCompany']}} type="button">
+                        Modifier
+                    </button>
+                </form>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+</body>
+</html>

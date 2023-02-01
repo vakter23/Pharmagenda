@@ -1,0 +1,289 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "Cette API permet de créer un calendrier de jour de travail avec des employées",
+    "version": "1.0.0",
+    "title": "Pharmagenda",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "tags": [
+    {
+      "name": "calendar",
+      "description": "Interaction avec le calendrier (ajout/modification/suppression de date)"
+    },
+    {
+      "name": "account",
+      "description": "Interaction avec la session de l'utilisateur (création/connexion de compte)"
+    },
+    {
+      "name": "employee",
+      "description": "Interaction avec les employées de l'utilisateur (création/modification/suppresion d'employées) "
+    },
+    {
+      "name": "infos",
+      "description": "Interaction avec l'utilisateur et sa société (création/modification de l'utilisateur et son entreprise )"
+    }
+  ],
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "user": {
+        "type": "object",
+        "properties": {
+          "idUser": {
+            "type": "integer",
+            "uniqueItems": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "surname": {
+            "type": "string"
+          },
+          "idCompany": {
+            "type": "integer"
+          }
+        }
+      },
+      "company": {
+        "type": "object",
+        "properties": {
+          "idCompany": {
+            "type": "integer",
+            "uniqueItems": true
+          },
+          "company_name": {
+            "type": "string"
+          },
+          "company_address": {
+            "type": "string"
+          },
+          "idUser": {
+            "type": "integer"
+          }
+        }
+      },
+      "employee": {
+        "type": "object",
+        "properties": {
+          "idEmployee": {
+            "type": "integer",
+            "uniqueItems": true
+          },
+          "employee_name": {
+            "type": "string"
+          },
+          "employee_surname": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          },
+          "idCompany": {
+            "type": "integer"
+          }
+        }
+      },
+      "workDay": {
+        "type": "object",
+        "properties": {
+          "idworkDay": {
+            "type": "integer",
+            "uniqueItems": true
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          },
+          "idCompany": {
+            "type": "integer"
+          },
+          "idEmployee": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/calendar": {
+      "post": {
+        "tags": [
+          "calendar"
+        ],
+        "summary": "Affichage du calendrier",
+        "description": "",
+        "operationId": "DisplayCalendar"
+      }
+    },
+    "/calendar/addDay": {
+      "put": {
+        "tags": [
+          "calendar"
+        ],
+        "summary": "Ajoute un nouveau jour de travail au calendrier",
+        "description": "",
+        "operationId": "addWorkDay"
+      }
+    },
+    "/calendar/deleteWorkDay/{id}": {
+      "delete": {
+        "tags": [
+          "calendar"
+        ],
+        "summary": "Supprime un jour de travail du calendrier",
+        "description": "",
+        "operationId": "deleteWorkDay"
+      }
+    },
+    "/calendar/modifyWorkDay": {
+      "post": {
+        "tags": [
+          "calendar"
+        ],
+        "summary": "Modifie un jour de travail (date de début et date de fin)",
+        "description": "",
+        "operationId": "modifyWorkDay"
+      }
+    },
+    "/calendar/<int:company_id>/getDaysWork": {
+      "get": {
+        "tags": [
+          "calendar"
+        ],
+        "summary": "Récupère tous les jours de travails d'une société",
+        "description": "",
+        "operationId": "getDaysWork"
+      }
+    },
+    "/account/createAccount": {
+      "post": {
+        "tags": [
+          "account"
+        ],
+        "summary": "Affichage de le page pour créer un utilisateur",
+        "description": "",
+        "operationId": "account"
+      }
+    },
+    "/account/createAccount/create": {
+      "post": {
+        "tags": [
+          "account"
+        ],
+        "summary": "Ajout du nouveau compte dans la BD",
+        "description": "",
+        "operationId": "createNewAccount"
+      }
+    },
+    "/employees": {
+      "get": {
+        "tags": [
+          "employee"
+        ],
+        "summary": "Affichage la page des employées",
+        "description": "",
+        "operationId": "employees"
+      }
+    },
+    "/employee/<int:idEmployee>": {
+      "get": {
+        "tags": [
+          "employee"
+        ],
+        "summary": "Affiche les informations de l'employée et ses jours de travails",
+        "description": "",
+        "operationId": "renderTemplateEmployee"
+      }
+    },
+    "/employee/<int:idEmployee>/modify_infos": {
+      "post": {
+        "tags": [
+          "employee"
+        ],
+        "summary": "Modifie les informations (nom/prénom/couleur) d'un employée",
+        "description": "",
+        "operationId": "modify_infos_employee"
+      }
+    },
+    "/employee/get_infos/<int:idEmployee>": {
+      "get": {
+        "tags": [
+          "employee"
+        ],
+        "summary": "Retourne les informations (nom/prénom/couleur) de l'employée",
+        "description": "",
+        "operationId": "get_infos_employee"
+      }
+    },
+    "/employee/get_work_days/<int:idEmployee>": {
+      "get": {
+        "tags": [
+          "employee"
+        ],
+        "summary": "Retourne les jours de travails de l'employée",
+        "description": "",
+        "operationId": "get_work_days"
+      }
+    },
+    "/employee/createEmployee": {
+      "post": {
+        "tags": [
+          "employee"
+        ],
+        "summary": "Création d'un nouvel employé en l'insérant dans la BD",
+        "description": "",
+        "operationId": "create_new_employee"
+      }
+    },
+    "/employee/delete/<int:idEmployee>'": {
+      "delete": {
+        "tags": [
+          "employee"
+        ],
+        "summary": "Suppression d'un employé de la BD",
+        "description": "",
+        "operationId": "delete_employee"
+      }
+    },
+    "/infos": {
+      "post": {
+        "tags": [
+          "infos"
+        ],
+        "summary": "Affiche la page d'information de l'utilisateur et sa société",
+        "description": "",
+        "operationId": "infos"
+      }
+    },
+    "/infos/modify_company/<int:idCompany>": {
+      "post": {
+        "tags": [
+          "infos"
+        ],
+        "summary": "Modifie les informations de la société de l'utilisateur",
+        "description": "",
+        "operationId": "modify_company"
+      }
+    },
+    "/infos/modify_user/<int:idUser>": {
+      "post": {
+        "tags": [
+          "infos"
+        ],
+        "summary": "Modifie les informations de l'utilisateur",
+        "description": "",
+        "operationId": "modify_user"
+      }
+    }
+  }
+}

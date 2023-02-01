@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title> {{ title }} </title>
+    {% include 'script.html' %}
+</head>
+<body>
+<header class="d-flex justify-content-center py-3">
+    <ul class="nav nav-pills">
+        <li class="nav-item"><a href="/" class="nav-link active" aria-current="page">Calendrier</a></li>
+        <li class="nav-item"><a href="/employees" class="nav-link">Employées</a></li>
+        <li class="nav-item"><a href="/infos" class="nav-link">Pharmacie</a></li>
+        <li class="nav-item"><a href="/logout" class="nav-link">Déconnexion</a></li>
+    </ul>
+</header>
+<div class="container">
+    <div class="row">
+        <div class="col-10" id='calendar-container'>
+            <div id='calendar'></div>
+        </div>
+        <div class="col-2">
+            <input type="button" onclick="generateScreenshot()" value="Imprimer calendrier" />
+            <h1>Employés</h1>
+            {% if employees %}
+            <ul>
+                {% for employee in employees %}
+                <li>
+                    <form action="/calendar/addDay" method="post">
+                        <textarea id={{employee['idEmployee']~"start_date"}} name="start_date" class="form-control"
+                                  style="display: none;" value=""></textarea>
+                        <textarea id={{employee['idEmployee']~"end_date"}} name="end_date" class="form-control"
+                                  style="display: none;" value=""></textarea>
+                        <textarea id={{employee['idEmployee']}} name="iddddd" class="form-control"
+                                  style="display: none;"
+                                  value=""></textarea>
+                        <button type="submit" name="button" class="add" numId={{employee['idEmployee']}}
+                                prenom={{employee['employee_name']}}
+                                nom={{employee['employee_surname']}} bgcolor={{employee['color']}} type="button">
+                            {{employee['employee_name']~" "~employee['employee_surname']}}
+                        </button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>Aucun employées dans cette société.</p>
+            <p>Allez dans l'onglet Employées pour en créer.</p>
+            {% endif %}
+        </div>
+    </div>
+    <div>
+        <h3>Interagir avec le calendrier</h3>
+        <ol>
+            <li>Sélectionner des jours en cliquant sur le calendrier. (Vous pouvez séléctionner plusieurs jours).</li>
+            <li>Puis cliquer sur le nom d'un employée.</li>
+            <li>Vous pouvez déplacer en glissant le jour de travail <b>ET/OU</b> réduire la durée en se plaçant sur l'éxtrémité
+            du jour de travail et glisser.</li>
+            <li>Pour supprimer un jour, veuiller juste cliquer sur le jour de travail.</li>
+        </ol>
+    </div>
+
+</div>
+</body>
+<script>
+    /**
+     * Send the new value of the day work to insert it in the DB
+     * call the method /calendar/modifyWorkDay
+     * */
+    function modifyDay(event) {
+        var form = document.createElement("form");
+        form.setAttribute("method", "post");
+        form.setAttribute("id", "formModify");
+        form.setAttribute("action", "/calendar/modifyWorkDay");
+        form.setAttribute("style", "display: none;");
+
+        var ID = document.createElement("input");
+        ID.setAttribute("type", "text");
+        ID.setAttribute("name", "idWorkDay");
+        ID.setAttribute("value", event['event']['_def']['publicId']);
+
+        var newStartDate = document.createElement("input");
+        newStartDate.setAttribute("type", "text");
+        newStartDate.setAttribute("name", "start_date");
+        newStartDate.setAttribute("value", event['event']['_instance']['range']['start']);
+
+        var newEndDate = document.createElement("input");
+        newEndDate.setAttribute("type", "text");
+        newEndDate.setAttribute("name", "end_date");
+        newEndDate.setAttribute("value", event['event']['_instance']['range']['end']);
+
+        // Append all together
+        form.append(ID);
+        form.append(newStartDate);
+        form.append(newEndDate);
+
+        document.getElementsByTagName("body")[0].appendChild(form);
+        form.submit(); // Call the method
+    }
+
+    /**
+     * Configure the calendar
+     * return
+     * */
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+        var dateSelected = new Array();
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            selectable: true,
+            droppable: true,
+            locale: 'fr',
+            eventClick: function (info) {
+                //delete event from calender
+                info.event.remove();
+                location.href = 'calendar/deleteWorkDay/' + info.event._def['publicId'];
+            },
+            firstDay: 1,
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            dateClick: function (info) {
+                dateSelected['start'] = info.dateStr;
+                dateSelected['end'] = null;
+            },
+            select: function (info) {
+                dateSelected['start'] = info.startStr
+                dateSelected['end'] = info.endStr
+            },
+            editable: true,
+            eventResize: function (event) {
+                modifyDay(event)
+            },
+            eventDrop: function (event, dayDelta, minuteDelta, allDay, revertFunc) {
+                modifyDay(event);
+            },
+        });
+        calendar.render();
+
+        // Transform Flask value into a JS value
+        function myFunc(vars) {
+            return vars
+        }
+        list_days = myFunc({{daysWork | tojson}})
+
+        /**
+         * Add all days work to the calendar
+         * */
+        calendar.batchRendering(() => {
+            // remove all events
+            calendar.getEvents().forEach(event => event.remove());
+            // add your new events source
+
+            for (var i = 0; i < list_days.length; i++) {
+                var obj = list_days[i];
+                newEvents = {
+                    'id': obj['idWorkDay'],
+                    'title': obj['employee_name'] + " " + obj['employee_surname'],
+                    'start': new Date(obj['start_date']),
+                    'end': new Date(obj['end_date']),
+                    'color': obj['color'],
+                    'allDay': true
+                }
+                calendar.addEvent(newEvents)
+            }
+        });
+
+        /**
+         * Add the work Day to the calendar then call the APi to add it to the DB
+         * */
+        function add_workDay() {
+            dateStart = new Date(dateSelected['start'] + 'T00:00:00');
+            dateEnd = new Date(dateSelected['end'] + 'T00:00:00');
+            personne = this.getAttribute("prenom") + this.getAttribute("nom")
+            color = this.getAttribute("bgcolor")
+
+            document.getElementById(this.getAttribute("numId") + "start_date").value = dateStart
+            document.getElementById(this.getAttribute("numId") + "end_date").value = dateEnd
+            document.getElementById(this.getAttribute("numId")).value = this.getAttribute("numId")
+
+            if (dateSelected['start'] != undefined) {
+                calendar.addEvent({
+                    title: personne,
+                    start: dateStart,
+                    end: dateEnd,
+                    backgroundColor: color,
+                    allDay: true
+                });
+                dateSelected = []
+            } else {
+                alert('Invalid date.');
+            }
+        }
+        for (var i = 0; i < document.getElementsByClassName("add").length; i++) {
+            document.getElementsByClassName("add")[i].addEventListener('click', add_workDay);
+        }
+
+    });
+
+    /**
+     * Permit to print the calendar with all the days work
+     * */
+    function debugBase64(base64URL){
+        var win = window.open();
+        win.document.write('<iframe src="' + base64URL  + '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>');
+    }
+    function generateScreenshot() {
+        html2canvas(document.getElementById('calendar').lastChild).then(function(canvas) {
+        // Export the canvas to its data URI representation
+        var base64image = canvas.toDataURL("image/png");
+
+        // Open the image in a new window
+        window.open(debugBase64(base64image) , "_blank");
+        });
+    }
+
+
+</script>
+</html>

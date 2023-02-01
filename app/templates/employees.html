@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title> {{ title }} </title>
+    {% include 'script.html' %}
+</head>
+</head>
+<body>
+<header class="d-flex justify-content-center py-3">
+    <ul class="nav nav-pills">
+        <li class="nav-item"><a href="/" class="nav-link">Calendrier</a></li>
+        <li class="nav-item"><a href="/employees" class="nav-link active" aria-current="page">Employées</a></li>
+        <li class="nav-item"><a href="/infos" class="nav-link">Pharmacie</a></li>
+        <li class="nav-item"><a href="/logout" class="nav-link">Déconnexion</a></li>
+    </ul>
+</header>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1>Créer un employé</h1>
+            <form action="{{'/employee/createEmployee'}}" method="post">
+                <li>Prenom :<input name="name" class="form-control"value=""></li>
+                <li>Nom :<input name="surname" class="form-control" value=""></li>
+                <li>Color: <input name="color" type="color" class="form-control" value=""></li>
+                <button type="submit" name="button" type="button">
+                    Créer un employé
+                </button>
+            </form>
+        </div>
+        <div class="col">
+            <h1>Liste d'employées</h1>
+            {% if employees %}
+            <ul>
+                {% for employee in employees %}
+                <li>
+                    <form action="{{'/employee/'~employee['idEmployee']}}" method="post">
+                        <textarea id={{employee['idEmployee']~"start_date"}} name="start_date" class="form-control"
+                                  style="display: none;" value=""></textarea>
+                        <textarea id={{employee['idEmployee']~"end_date"}} name="end_date" class="form-control"
+                                  style="display: none;" value=""></textarea>
+                        <textarea id={{employee['idEmployee']}} name="iddddd" class="form-control"
+                                  style="display: none;"
+                                  value=""></textarea>
+                        <button type="submit" name="button" class="add" numId={{employee['idEmployee']}}
+                                prenom={{employee['employee_name']}}
+                                nom={{employee['employee_surname']}} bgcolor={{employee['color']}} type="button">
+                            {{employee['employee_name']~" "~employee['employee_surname']}}
+                        </button>
+                    </form>
+                    <form action="{{'/employee/delete/'~employee['idEmployee']}}" method="post">
+                        <button type="submit" name="button" class="add" numId={{employee['idEmployee']}}
+                                prenom={{employee['employee_name']}}
+                                nom={{employee['employee_surname']}} bgcolor={{employee['color']}}
+                                type="button">Supprimer
+                        </button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>Aucun employées, Vous pouvez en créer</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+</body>
+</html>
